@@ -131,6 +131,11 @@ const propertySchema = new mongoose.Schema(
       default: true,
       index: true,
     },
+    isDemo: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     ratingAverage: {
       type: Number,
       default: 0,

@@ -23,51 +23,58 @@ const getProperties = async (req, res, next) => {
       limit = 12,
     } = req.query;
 
-    const query = { isActive: true };
+    const conditions = [{ isActive: true }];
 
     // 1. Text / Keyword Search across title, description, city, location
     if (search && search.trim() !== '') {
       const searchRegex = new RegExp(search.trim(), 'i');
-      query.$or = [
-        { title: searchRegex },
-        { description: searchRegex },
-        { city: searchRegex },
-        { location: searchRegex },
-      ];
+      conditions.push({
+        $or: [
+          { title: searchRegex },
+          { description: searchRegex },
+          { city: searchRegex },
+          { location: searchRegex },
+        ],
+      });
     }
 
     // 2. City / Location specific filter
     if (city && city.trim() !== '') {
-      query.city = new RegExp(city.trim(), 'i');
+      conditions.push({ city: new RegExp(city.trim(), 'i') });
     } else if (location && location.trim() !== '') {
       const locRegex = new RegExp(location.trim(), 'i');
-      query.$or = [{ city: locRegex }, { location: locRegex }];
+      conditions.push({
+        $or: [{ city: locRegex }, { location: locRegex }],
+      });
     }
 
-    // 3. Category filter
-    if (category && category !== 'All' && category !== '') {
-      query.category = category;
+    // 3. Category filter (case-insensitive and trim-safe)
+    if (category && category !== 'All' && category.trim() !== '') {
+      conditions.push({ category: new RegExp(`^${category.trim()}$`, 'i') });
     }
 
-    // 4. Property Type filter
-    if (propertyType && propertyType !== 'All' && propertyType !== '') {
-      query.propertyType = propertyType;
+    // 4. Property Type filter (case-insensitive and trim-safe)
+    if (propertyType && propertyType !== 'All' && propertyType.trim() !== '') {
+      conditions.push({ propertyType: new RegExp(`^${propertyType.trim()}$`, 'i') });
     }
 
     // 5. Price range filter
     if (minPrice !== undefined || maxPrice !== undefined) {
-      query.pricePerNight = {};
+      const priceQuery = {};
       if (minPrice !== undefined && !isNaN(Number(minPrice))) {
-        query.pricePerNight.$gte = Number(minPrice);
+        priceQuery.$gte = Number(minPrice);
       }
       if (maxPrice !== undefined && !isNaN(Number(maxPrice))) {
-        query.pricePerNight.$lte = Number(maxPrice);
+        priceQuery.$lte = Number(maxPrice);
+      }
+      if (Object.keys(priceQuery).length > 0) {
+        conditions.push({ pricePerNight: priceQuery });
       }
     }
 
     // 6. Guest capacity filter
     if (guests && !isNaN(Number(guests))) {
-      query.maxGuests = { $gte: Number(guests) };
+      conditions.push({ maxGuests: { $gte: Number(guests) } });
     }
 
     // 7. Date-availability check against active bookings
@@ -85,10 +92,12 @@ const getProperties = async (req, res, next) => {
 
         const unavailablePropertyIds = conflictingBookings.map((b) => b.property);
         if (unavailablePropertyIds.length > 0) {
-          query._id = { $nin: unavailablePropertyIds };
+          conditions.push({ _id: { $nin: unavailablePropertyIds } });
         }
       }
     }
+
+    const query = conditions.length === 1 ? conditions[0] : { $and: conditions };
 
     // 8. Sorting options
     let sortOption = { createdAt: -1 }; // default newest
