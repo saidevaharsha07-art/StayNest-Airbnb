@@ -2,13 +2,62 @@
 
 ## Project Overview
 - **Application Name**: StayNest (Airbnb Full-Stack MERN Capstone)
-- **Current Phase**: Property Data & Category Filter System Expansion
-- **Status**: Completed, Tested & Production Ready
+- **Current Phase**: End-to-End Browser Testing & Full Verification
+- **Status**: Completed, Fully Tested & Production Ready
 - **Last Updated**: 2026-11-01
 
 ---
 
-## 1. Completed Features & Milestones
+## 1. End-to-End Browser Testing Summary (Stage 3)
+
+The complete full-stack browser-based test suite (`tests/e2eBrowser.js`) was executed against the running application using Google Chrome and Puppeteer. All tests completed successfully with **0 browser console errors**.
+
+| Test | Objective | Scope & Verification | Result |
+|---|---|---|---|
+| **TEST 1** | **Home Page & Pagination** | Verified 28 total properties across 3 pages (Page 1: 12, Page 2: 12, Page 3: 4). Verified all 9 categories return 3–4 properties each. Verified "Clear all" restores page 1. | **PASSED** |
+| **TEST 2** | **Search & Advanced Filters** | Location search: "Hyderabad" (5 properties), "Goa" (3 properties). Price filter: <= ₹8,000 (12 properties). Combined filter: "Goa" + "Beachfront" (1 property). | **PASSED** |
+| **TEST 3** | **Guest Experience & Booking** | Registered new guest (`e2e_guest_*@staynest.com`), logged in, opened property details, picked dates (+10 to +13 days), confirmed reservation on checkout page, verified in My Bookings, cancelled reservation. | **PASSED** |
+| **TEST 4** | **Host Experience** | Logged in as Host (`host@staynest.com`), inspected Host Dashboard & Reservations tab, created new listing with sample photos, edited listing price to ₹9,200, deleted temporary listing. | **PASSED** |
+| **TEST 5** | **Responsive Design** | Tested Mobile viewport (iPhone 390x844) and Tablet viewport (iPad 768x1024). Verified responsive layouts, navigation bars, and zero horizontal overflow. | **PASSED** |
+| **TEST 6** | **Console & Quality Check** | Inspected browser console logs (0 errors). Verified backend terminal and database persistence. | **PASSED** |
+
+---
+
+## 2. Captured Verification Screenshots
+
+All 7 required screenshots were captured during actual browser interaction and are saved in both `./screenshots/` and the conversation artifacts directory:
+
+| # | Screenshot | Description | File Path |
+|---|---|---|---|
+| 1 | `01-home-page.png` | Home page showing 28 properties, category filter bar, search pill | [01-home-page.png](file:///c:/Users/saide/Downloads/Smarted%20Inovations/screenshots/01-home-page.png) |
+| 2 | `02-property-details.png` | Property details view with photo grid, amenities, and booking widget | [02-property-details.png](file:///c:/Users/saide/Downloads/Smarted%20Inovations/screenshots/02-property-details.png) |
+| 3 | `03-login-page.png` | Authentication page with instant demo host & guest logins | [03-login-page.png](file:///c:/Users/saide/Downloads/Smarted%20Inovations/screenshots/03-login-page.png) |
+| 4 | `04-guest-dashboard.png` | Guest My Bookings page showing confirmed stay and actions | [04-guest-dashboard.png](file:///c:/Users/saide/Downloads/Smarted%20Inovations/screenshots/04-guest-dashboard.png) |
+| 5 | `05-host-dashboard.png` | Host Dashboard showing listing portfolio, stats, and reservations | [05-host-dashboard.png](file:///c:/Users/saide/Downloads/Smarted%20Inovations/screenshots/05-host-dashboard.png) |
+| 6 | `06-booking-confirmation.png` | Booking checkout confirmation page with cost breakdown | [06-booking-confirmation.png](file:///c:/Users/saide/Downloads/Smarted%20Inovations/screenshots/06-booking-confirmation.png) |
+| 7 | `07-mobile-home-page.png` | Mobile viewport (390x844) showing responsive layout | [07-mobile-home-page.png](file:///c:/Users/saide/Downloads/Smarted%20Inovations/screenshots/07-mobile-home-page.png) |
+
+---
+
+## 3. Automated Test Suite Results
+
+```
+PASS tests/categoryFilters.test.js (9.557 s)
+PASS tests/api.test.js (4.797 s)
+
+Test Suites: 2 passed, 2 total
+Tests:       44 passed, 44 total
+Snapshots:   0 total
+Time:        14.354 s
+```
+
+- **Unit & Integration Tests**: 44 / 44 passed (100%).
+- **Browser E2E Tests**: 6 / 6 test suites passed.
+- **Vite Production Build**: 1,666 modules compiled in 7.54s with 0 errors.
+
+---
+
+## 4. Completed Architecture & Milestones
 
 ### Architecture & Setup
 - [x] Full Git-ready project structure separating `client/` and `server/`.
@@ -46,9 +95,6 @@
   - Helmet security HTTP headers.
   - CORS allowlist configuration.
   - Centralized error handler without leaking internal stack traces.
-- [x] **Automated Tests**:
-  - **44 / 44 Jest and Supertest automated tests passing with 100% success rate**.
-  - Dedicated `categoryFilters.test.js` validating all 9 categories individually, all 8 cities, combined filters, search, clear filters, and empty state handling.
 
 ### Frontend (React 18, Vite, Tailwind CSS, Lucide React)
 - [x] **Category Filter & Home Page**:
@@ -64,27 +110,21 @@
 
 ---
 
-## 2. Verification Summary
-
-| Test Suite | Tests | Result |
-|---|---|---|
-| `categoryFilters.test.js` | 23 tests (All 9 categories, 8 cities, combined filters, search, clear, empty) | **PASS** |
-| `api.test.js` | 21 tests (Auth, Property CRUD, Booking logic, Concurrency check, Cancellation) | **PASS** |
-| **Total** | **44 / 44 Tests** | **100% Passing** |
-
----
-
-## 3. How to Run & Verify
+## 5. Verification Commands
 
 1. **Run Full-Stack Dev Server**:
    ```bash
    npm run dev
    ```
-2. **Run Safe Seeder**:
+2. **Run End-to-End Browser Tests**:
    ```bash
-   npm run seed
+   node tests/e2eBrowser.js
    ```
-3. **Run Full Automated Test Suite**:
+3. **Run Backend Test Suite**:
    ```bash
    npm run test:server
+   ```
+4. **Compile Frontend Production Bundle**:
+   ```bash
+   npm run build:client
    ```

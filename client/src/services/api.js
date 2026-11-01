@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Robust API Base URL normalization for Production (Vercel) & Development
+const rawApiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').trim();
+const sanitizedUrl = rawApiUrl.replace(/\/+$/, '');
+const API_BASE_URL = sanitizedUrl.endsWith('/api') ? sanitizedUrl : `${sanitizedUrl}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,

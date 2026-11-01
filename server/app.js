@@ -15,28 +15,47 @@ const { uploadsDir } = require('./middleware/upload');
 
 const app = express();
 
-// Security HTTP headers (allow cross-origin resources for local images)
+// Trust reverse proxy (Render, Vercel, Nginx) for secure cookies & protocol detection
+app.set('trust proxy', 1);
+
+// Security HTTP headers (allow cross-origin resources for image assets)
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 
-// CORS configuration
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://127.0.0.1:5173',
-];
+// Dynamic CORS configuration supporting single or comma-separated origins & Vercel previews
+const getCorsOrigins = () => {
+  const configured = process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/+$/, ''))
+    : [];
+  const defaults = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+  ];
+  return Array.from(new Set([...configured, ...defaults]));
+};
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      const origins = getCorsOrigins();
+      const isAllowed = origins.some((allowed) => {
+        if (allowed === '*' || origin === allowed) return true;
+        // Allow Vercel preview deployment subdomains if a vercel app domain is configured
+        if (allowed.includes('.vercel.app') && origin.endsWith('.vercel.app')) return true;
+        return false;
+      });
+
+      if (isAllowed || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
-        callback(null, true);
+        callback(new Error(`CORS error: Origin ${origin} not permitted.`));
       }
     },
     credentials: true,

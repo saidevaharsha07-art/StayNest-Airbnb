@@ -34,6 +34,22 @@ const errorHandler = (err, req, res, next) => {
     error = { statusCode: 401, message: 'Authentication token has expired.' };
   }
 
+  // Multer Upload Errors
+  if (err.name === 'MulterError') {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      error = { statusCode: 400, message: 'File is too large. Maximum file size allowed is 5MB.' };
+    } else if (err.code === 'LIMIT_FILE_COUNT') {
+      error = { statusCode: 400, message: 'Too many files uploaded. Maximum is 10 images at once.' };
+    } else {
+      error = { statusCode: 400, message: `Upload error: ${err.message}` };
+    }
+  }
+
+  // CORS Policy Error
+  if (err.message && err.message.startsWith('CORS error:')) {
+    error = { statusCode: 403, message: err.message };
+  }
+
   const statusCode = error.statusCode || err.statusCode || 500;
   const response = {
     success: false,

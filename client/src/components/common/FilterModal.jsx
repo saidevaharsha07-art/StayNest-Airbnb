@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, SlidersHorizontal, RotateCcw } from 'lucide-react';
 
 const PROPERTY_TYPES = [
@@ -17,6 +17,15 @@ const FilterModal = ({ isOpen, onClose, onApply, currentFilters = {} }) => {
   const [maxPrice, setMaxPrice] = useState(currentFilters.maxPrice || '');
   const [propertyType, setPropertyType] = useState(currentFilters.propertyType || 'All');
   const [sort, setSort] = useState(currentFilters.sort || 'newest');
+
+  useEffect(() => {
+    if (isOpen) {
+      setMinPrice(currentFilters.minPrice || '');
+      setMaxPrice(currentFilters.maxPrice || '');
+      setPropertyType(currentFilters.propertyType || 'All');
+      setSort(currentFilters.sort || 'newest');
+    }
+  }, [isOpen, currentFilters]);
 
   if (!isOpen) return null;
 

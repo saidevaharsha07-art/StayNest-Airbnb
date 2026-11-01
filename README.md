@@ -321,28 +321,59 @@ StayNest enforces strict enterprise booking rules:
 
 ## 🚀 Production Build & Deployment Guide
 
-### Option 1: Unified Full-Stack Single Server (Recommended)
-1. Build the frontend into `client/dist`:
-   ```bash
-   npm run build:client
-   ```
-2. Start the Express server in production mode:
-   ```bash
-   NODE_ENV=production PORT=5000 node server/server.js
-   ```
-   The Express server automatically detects `client/dist` and serves both the REST API and the static React Single Page Application on port 5000!
+For a full checklist, see [DEPLOYMENT.md](file:///c:/Users/saide/Downloads/Smarted%20Inovations/DEPLOYMENT.md).
 
-### Option 2: Cloud Deployment (Vercel + Render / Railway)
-- **Frontend (Vercel / Netlify)**:
-  - Root directory: `client`
-  - Build command: `npm run build`
-  - Output directory: `dist`
-  - Environment variable: `VITE_API_URL=https://your-backend.onrender.com/api`
-- **Backend (Render / Railway / Heroku)**:
-  - Root directory: `server`
-  - Build command: `npm install`
-  - Start command: `node server.js`
-  - Environment variables: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_URL`
+### 1. MongoDB Atlas Setup
+1. Create a free **M0 Sandbox cluster** at [mongodb.com](https://www.mongodb.com/cloud/atlas).
+2. Create a Database User with password authentication and `readWriteAnyDatabase` privileges.
+3. Under **Network Access**, add IP `0.0.0.0/0` (Allow Access from Anywhere).
+4. Copy the connection string and insert your password and database name:
+   ```
+   mongodb+srv://<username>:<password>@cluster0.xxxx.mongodb.net/staynest?retryWrites=true&w=majority
+   ```
+
+### 2. Cloudinary Setup (Optional)
+1. Sign in to [cloudinary.com](https://cloudinary.com) and retrieve your **Cloud Name**, **API Key**, and **API Secret**.
+2. If omitted, StayNest automatically uses local disk storage and the curated CDN image library.
+
+### 3. Backend Deployment (Render)
+1. In [Render Dashboard](https://dashboard.render.com), create a **New Web Service** pointing to your repository.
+2. Configure settings:
+   - **Root Directory**: `server`
+   - **Build Command**: `npm install`
+   - **Start Command**: `node server.js`
+   - **Health Check Path**: `/api/health`
+3. Configure Environment Variables:
+   - `NODE_ENV`: `production`
+   - `PORT`: `10000`
+   - `MONGODB_URI`: `<Your MongoDB Atlas SRV URI>`
+   - `JWT_SECRET`: `<A strong random 32+ char secret>`
+   - `JWT_EXPIRES_IN`: `7d`
+   - `CLIENT_URL`: `https://your-frontend.vercel.app` (Your Vercel domain)
+   - `SEED_DEMO_DATA`: `true` (Seeds 28 properties on first launch)
+   - `CLOUDINARY_*`: (Optional credentials)
+4. Deploy and note your public API URL (e.g., `https://staynest-api.onrender.com`).
+
+### 4. Frontend Deployment (Vercel)
+1. In [Vercel](https://vercel.com), import your repository.
+2. Configure settings:
+   - **Framework Preset**: `Vite`
+   - **Root Directory**: `client` (or root with the included `vercel.json`)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+3. Set Environment Variable:
+   - `VITE_API_URL`: `https://staynest-api.onrender.com/api`
+4. Deploy. The included `client/vercel.json` rewrite rules ensure client-side SPA routing works properly on deep page refresh.
+
+### 5. Unified Local Production Test
+You can also run the unified production build on a single server locally:
+```bash
+# 1. Compile React production bundle
+npm run build:client
+
+# 2. Run Express serving both the API and client/dist bundle
+node server/server.js
+```
 
 ---
 

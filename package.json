@@ -5,9 +5,12 @@
   "main": "server/server.js",
   "scripts": {
     "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "install:server": "npm install --prefix server",
+    "install:client": "npm install --prefix client",
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "start": "node server/server.js",
     "seed": "node server/scripts/seed.js",
+    "test": "npm test --prefix server",
     "test:server": "npm test --prefix server",
     "build:client": "npm run build --prefix client",
     "build": "npm run build --prefix client"
@@ -24,6 +27,7 @@
   "author": "Internship Capstone Project",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "puppeteer-core": "^25.16.0"
   }
 }

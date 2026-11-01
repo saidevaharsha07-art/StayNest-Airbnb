@@ -6,6 +6,16 @@ const demoProperties = require('../data/demoProperties');
 
 const autoSeedIfEmpty = async () => {
   try {
+    // In production environments, never auto-seed unless explicitly enabled by environment variable
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.AUTO_SEED !== 'true' &&
+      process.env.SEED_DEMO_DATA !== 'true'
+    ) {
+      console.log('[AutoSeed] Production environment detected. Auto-seeding disabled (set AUTO_SEED=true to seed demo data).');
+      return;
+    }
+
     const propertyCount = await Property.countDocuments();
     if (propertyCount >= demoProperties.length) {
       return; // Already has full demonstration data

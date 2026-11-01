@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Calendar, Users, X } from 'lucide-react';
 
 const SearchModal = ({ isOpen, onClose, onSearch, currentFilters = {} }) => {
@@ -6,6 +6,15 @@ const SearchModal = ({ isOpen, onClose, onSearch, currentFilters = {} }) => {
   const [checkIn, setCheckIn] = useState(currentFilters.checkIn || '');
   const [checkOut, setCheckOut] = useState(currentFilters.checkOut || '');
   const [guests, setGuests] = useState(currentFilters.guests || 1);
+
+  useEffect(() => {
+    if (isOpen) {
+      setLocation(currentFilters.location || '');
+      setCheckIn(currentFilters.checkIn || '');
+      setCheckOut(currentFilters.checkOut || '');
+      setGuests(currentFilters.guests || 1);
+    }
+  }, [isOpen, currentFilters]);
 
   if (!isOpen) return null;
 
